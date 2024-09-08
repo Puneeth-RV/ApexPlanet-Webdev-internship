@@ -69,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     } else {
         $errors[] = "Username parameter is missing.";
-        $user = null; // Explicitly set to null to avoid further errors
+        $user = null; 
     }
 }
 ?>
