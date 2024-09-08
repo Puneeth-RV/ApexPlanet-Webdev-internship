@@ -32,10 +32,12 @@ if ($stmt->execute()) {
     if ($is_self_deletion) {
         session_unset();
         session_destroy();
+        header("Location: login.php");
+        exit();
+    } else {
+        header("Location: usermanager.php");
+        exit();
     }
-    
-    header("Location: login.php");
-    exit();
 } else {
     echo "Error: " . $stmt->error;
 }
