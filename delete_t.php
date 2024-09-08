@@ -17,25 +17,14 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$username = $_GET['username'];
+$id = $_GET['id'];
 
-$is_self_deletion = $username === $_SESSION['username'];
-
-$sql = "DELETE FROM users WHERE username=?";
+$sql = "DELETE FROM thoughts WHERE id=?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $username);
+$stmt->bind_param("i", $id);
 
 if ($stmt->execute()) {
-    $stmt->close();
-    $conn->close();
-    
-    if ($is_self_deletion) {
-        session_unset();
-        session_destroy();
-    }
-    
-    header("Location: login.php");
-    exit();
+    header("Location: thought.php");
 } else {
     echo "Error: " . $stmt->error;
 }
