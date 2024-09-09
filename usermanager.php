@@ -30,27 +30,34 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Users</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0; 
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background-color: #fff; 
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+            background-color: #8D58BF; 
+            color: #333;
         }
         header {
+            background: #ffffff;
+            padding: 20px 10%;
+            border-bottom: 1px solid #ddd;
             text-align: center;
-            padding: 10px 0;
         }
         h1, h2 {
             margin: 0;
-            font-size: 24px;
+            font-size: 32px;
+            color: #333;
+        }
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
         table {
             width: 100%;
@@ -58,23 +65,35 @@ $conn->close();
             margin: 20px 0;
         }
         th, td {
-            padding: 8px;
+            padding: 12px;
             text-align: left;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
+        }
+        th {
+            background: #8D58BF;
+            color: #fff;
+            font-size: 18px;
+        }
+        td {
+            background: #f9f9f9;
+            font-size: 16px;
         }
         .btn {
             display: inline-block;
-            padding: 5px 10px; 
-            border: 1px solid #000;
+            padding: 10px 20px;
+            border: 1px solid #8D58BF;
+            background-color: #fff;
+            border-radius: 8px;
+            font-size: 16px; 
+            text-align: center;
             text-decoration: none;
-            color: #000;
-            background-color: #f0f0f0; 
-            border-radius: 5px; 
+            color: #8D58BF;
             margin-right: 10px;
-            font-size: 14px; 
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .btn:hover {
-            background-color: #ddd; 
+            background-color: #8D58BF;
+            color: #fff;
         }
     </style>
 </head>
@@ -106,4 +125,3 @@ $conn->close();
     </div>
 </body>
 </html>
-

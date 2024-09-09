@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['username'])) {
+if(!isset($_SESSION['username'])){
     header("Location: login.php");
     exit();
 }
@@ -13,7 +13,7 @@ $dbname = "user_management";
 
 $conn = new mysqli($servername, $username_db, $password, $dbname);
 
-if ($conn->connect_error) {
+if($conn->connect_error){
     die("Connection failed: " . $conn->connect_error);
 }
 

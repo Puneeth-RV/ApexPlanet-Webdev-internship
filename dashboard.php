@@ -31,7 +31,6 @@ if ($result_user->num_rows > 0) {
     $error = "Error fetching user information.";
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_thought = trim($_POST['current_thought']);
 
@@ -64,87 +63,147 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5; 
+            background: #8D58BF; 
+            color: #333;
         }
+        
         header {
-            text-align: center;
-            padding: 10px 0;
+            background: #ffffff;
+            padding: 15px 10%;
+            border-bottom: 1px solid #ddd;
             position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
         h1 {
             margin: 0;
             font-size: 24px;
+            color: #333;
         }
-        .container {
-            width: 80%;
-            margin: 20px auto;
+
+        .top-right-buttons {
+            display: flex;
+            gap: 10px;
         }
-        .profile-info {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            background-color: #fff; 
-            word-wrap: break-word;
-        }
-        .profile-info h2 {
-            margin: 0;
-            font-size: 20px;
-        }
-        .profile-info p {
-            margin: 10px 0;
-        }
-        textarea {
-            width: 100%;
-            height: 150px; 
-            padding: 10px;
-            font-size: 16px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box; 
-            resize: none; 
-        }
-        button {
-            padding: 8px 12px;
-            border: 1px solid #000;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #ddd;
-        }
+
         .btn {
             display: inline-block;
-            padding: 8px 12px;
-            border: 1px solid #000;
+            padding: 10px 15px;
+            border: 1px solid #8D58BF;
             text-decoration: none;
-            color: #000;
-            background-color: #f0f0f0;
+            color: #8D58BF;
+            background-color: #fff;
             border-radius: 5px;
-            margin-right: 10px;
             font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #8D58BF;
+            color: #fff;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-thought-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        .profile-card, .thought-card {
+            flex: 1;
+        }
+
+        .thought-card {
+            margin-left: 20px;
+        }
+
+        .profile-card, .thought-card {
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-card h2, .thought-card h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #8D58BF;
+        }
+
+        .profile-card p, .thought-card p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #555;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 8px;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        textarea:focus {
+            border-color: #8D58BF;
+            box-shadow: 0 0 10px rgba(141, 88, 191, 0.1);
+        }
+
+        button {
+            padding: 8px;
+            border: none;
+            background-color: #8D58BF;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: auto;
+            display: inline-block;
+        }
+
+        button:hover {
+            background-color: #6D5BBA;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            font-size: 14px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
             text-align: center;
         }
-        .top-right-buttons {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: flex;
-            gap: 10px; 
-        }
-        .error {
-            color: red;
-            font-weight: bold;
-        }
+
         .success {
-            color: green;
-            font-weight: bold;
+            background-color: #d4edda;
+            color: #155724;
+            font-size: 14px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
         }
     </style>
 </head>
@@ -159,31 +218,31 @@ $conn->close();
     </header>
     
     <div class="container">
-        <div class="profile-info">
-            <h2>Welcome, <?php echo htmlspecialchars($user['username']); ?>!</h2>
-            <p>Email: <?php echo htmlspecialchars($user['email']); ?></p>
-            <p>Phone: <?php echo htmlspecialchars($user['phone']); ?></p>
-            <p>Date of Birth: <?php echo htmlspecialchars($user['dob']); ?></p>
-            <p>Address: <?php echo htmlspecialchars($user['address']); ?></p>
-            <p>Current Thought: <?php echo htmlspecialchars($user['current_thought']); ?></p>
-            <p>Posted at: <?php echo htmlspecialchars($user['thought_timestamp']); ?></p>
-        </div>
+        <div class="profile-thought-container">
+            <div class="profile-card">
+                <h2>Welcome, <?php echo htmlspecialchars($user['username']); ?>!</h2>
+                <p>Email: <?php echo isset($user['email']) ? htmlspecialchars($user['email']) : 'N/A'; ?></p>
+                <p>Phone: <?php echo isset($user['phone']) ? htmlspecialchars($user['phone']) : 'N/A'; ?></p>
+                <p>Date of Birth: <?php echo isset($user['dob']) ? htmlspecialchars($user['dob']) : 'N/A'; ?></p>
+                <p>Address: <?php echo isset($user['address']) ? htmlspecialchars($user['address']) : 'N/A'; ?></p>
+                <p>Current Thought: <?php echo isset($user['current_thought']) ? htmlspecialchars($user['current_thought']) : 'N/A'; ?></p>
+                <p>Posted at: <?php echo isset($user['thought_timestamp']) ? htmlspecialchars($user['thought_timestamp']) : 'N/A'; ?></p>
+            </div>
 
-        <div class="thought-form">
-            <form method="POST" action="dashboard.php">
-                <textarea name="current_thought" placeholder="Share your thoughts..."><?php echo htmlspecialchars($user['current_thought']); ?></textarea>
-                <button type="submit">Update Thought</button>
-            </form>
-            <?php if (isset($error)): ?>
-                <p class="error"><?php echo htmlspecialchars($error); ?></p>
-            <?php endif; ?>
-            <?php if (isset($success)): ?>
-                <p class="success"><?php echo htmlspecialchars($success); ?></p>
-            <?php endif; ?>
+            <div class="thought-card">
+                <h2>Update Your Thought</h2>
+                <form method="POST" action="dashboard.php">
+                    <textarea name="current_thought" placeholder="Share your thoughts..."><?php echo isset($user['current_thought']) ? htmlspecialchars($user['current_thought']) : ''; ?></textarea>
+                    <button type="submit">Update Thought</button>
+                </form>
+                <?php if (isset($error)): ?>
+                    <p class="error"><?php echo htmlspecialchars($error); ?></p>
+                <?php endif; ?>
+                <?php if (isset($success)): ?>
+                    <p class="success"><?php echo htmlspecialchars($success); ?></p>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </body>
 </html>
-
-
-

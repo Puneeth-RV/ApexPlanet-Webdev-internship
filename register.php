@@ -22,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Server-Side Validation
     if (empty($phone) || empty($dob) || empty($address) || empty($username) || empty($email) || empty($password) || empty($confirm_password)) {
         $errors[] = "Please fill in all fields.";
     }
@@ -61,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 if ($stmt->execute()) {
                     $successMessage = "Registration successful!";
+                    $_POST = [];
                 }
             } catch (mysqli_sql_exception $e) {
                 $errors[] = "Error: " . $e->getMessage();
@@ -81,51 +81,123 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
         body {
+            font-family: 'Poppins', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background: linear-gradient(135deg, #6D5BBA, #8D58BF);
+            color: #fff;
         }
+
         .container {
-            width: 300px;
-            padding: 15px;
-            border: 1px solid black;
-            border-radius: 8px;
-            text-align: left;
+            width: 100%;
+            max-width: 800px;
             background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            animation: fadeInUp 1s ease-in-out;
         }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h2 {
+            text-align: center;
+            color: #8D58BF;
+            margin-bottom: 20px;
+            font-size: 26px;
+            font-weight: 600;
+        }
+
         form {
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-        label, input {
-            margin-bottom: 8px;
+
+        .form-group {
+            flex: 1;
+            min-width: 250px;
+            box-sizing: border-box;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            box-sizing: border-box;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        .form-group input:focus {
+            border-color: #8D58BF;
+            box-shadow: 0 0 10px rgba(141, 88, 191, 0.1);
+        }
+
+        input[type="submit"] {
+            cursor: pointer;
+            background-color: #8D58BF;
+            color: white;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #6D5BBA;
+        }
+
+        a {
+            text-align: center;
+            color: #8D58BF;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .error, .success {
+            font-size: 14px;
+            padding: 10px;
+            margin-bottom: 20px; 
+            border-radius: 5px;
+            text-align: center;
             width: 100%;
             box-sizing: border-box;
         }
-        input[type="submit"] {
-            padding: 8px;
-            cursor: pointer;
-            border: 1px solid #000;
-            background-color: #f0f0f0;
-        }
-        input[type="submit"]:hover {
-            background-color: #e0e0e0;
-        }
-        a {
-            display: block;
-            margin-top: 8px;
-        }
+
         .error {
-            color: red;
-            margin-bottom: 10px;
+            background-color: #f8d7da;
+            color: #721c24;
         }
+
         .success {
-            color: green;
-            margin-bottom: 10px;
+            background-color: #d4edda;
+            color: #155724;
         }
     </style>
 </head>
@@ -133,41 +205,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="container">
         <h2>Register</h2>
         <form id="registerForm" action="register.php" method="post">
-            <div class="error">
-                <?php 
-                if (count($errors) > 0) {
-                    echo implode('<br>', $errors);
-                }
-                ?>
+            <?php if (count($errors) > 0): ?>
+                <div class="error">
+                    <?php echo implode('<br>', $errors); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($successMessage): ?>
+                <div class="success">
+                    <?php echo $successMessage; ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="form-group">
+                <input type="text" id="username" name="username" placeholder="Username" value="<?php echo htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES); ?>" required>
             </div>
-            <div class="success">
-                <?php 
-                if ($successMessage) {
-                    echo $successMessage;
-                }
-                ?>
+
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Email" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES); ?>" required>
             </div>
 
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES); ?>" required>
+            <div class="form-group">
+                <input type="password" id="password" name="password" placeholder="Password" required>
+            </div>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES); ?>" required>
+            <div class="form-group">
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+            </div>
 
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <div class="form-group">
+                <input type="tel" id="phone" name="phone" placeholder="Phone Number (10 digits)" pattern="[0-9]{10}" value="<?php echo htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES); ?>" required>
+            </div>
 
-            <label for="confirm_password">Confirm Password:</label>
-            <input type="password" id="confirm_password" name="confirm_password" required>
+            <div class="form-group">
+                <input type="date" id="dob" name="dob" value="<?php echo htmlspecialchars($_POST['dob'] ?? '', ENT_QUOTES); ?>" required>
+            </div>
 
-            <label for="phone">Phone Number:</label>
-            <input type="tel" id="phone" name="phone" pattern="[0-9]{10}" value="<?php echo htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES); ?>" required>
-
-            <label for="dob">Date of Birth:</label>
-            <input type="date" id="dob" name="dob" value="<?php echo htmlspecialchars($_POST['dob'] ?? '', ENT_QUOTES); ?>" required>
-
-            <label for="address">Address:</label>
-            <input type="text" id="address" name="address" value="<?php echo htmlspecialchars($_POST['address'] ?? '', ENT_QUOTES); ?>" required>
+            <div class="form-group">
+                <input type="text" id="address" name="address" placeholder="Address" value="<?php echo htmlspecialchars($_POST['address'] ?? '', ENT_QUOTES); ?>" required>
+            </div>
 
             <input type="submit" value="Register">
 

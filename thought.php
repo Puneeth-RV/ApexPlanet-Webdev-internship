@@ -17,7 +17,6 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch all thoughts
 $sql_thoughts = "SELECT username, current_thought, created_at FROM users WHERE current_thought IS NOT NULL";
 $result_thoughts = $conn->query($sql_thoughts);
 
@@ -35,53 +34,71 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Thoughts</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5; 
+            background-color: #8D58BF; 
+            color: #333;
         }
         header {
+            background: #ffffff;
+            padding: 20px 10%;
+            border-bottom: 1px solid #ddd;
             text-align: center;
-            padding: 10px 0;
-            background-color: #fff; 
-            border-bottom: 1px solid #ccc;
         }
         h1 {
             margin: 0;
-            font-size: 28px; 
+            font-size: 32px; 
+            color: #333;
         }
         .container {
-            width: 80%;
-            margin: 20px auto;
-            background-color: #fff; 
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
         .thought {
-            padding: 15px;
-            border-bottom: 1px solid #ccc;
-            word-wrap: break-word; 
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
         }
         .thought p {
             margin: 0;
             font-size: 20px; 
+            color: #555;
+        }
+        .thought p strong {
+            color: #8D58BF;
+            font-size: 20px; 
+        }
+        .thought p small {
+            font-size: 14px; 
+            color: #777;
         }
         .btn-back {
             display: inline-block;
-            padding: 10px 20px;
-            border: 1px solid #000;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            font-size: 18px; 
+            padding: 12px 24px;
+            border: 1px solid #8D58BF;
+            background-color: #fff;
+            border-radius: 8px;
+            font-size: 20px; 
             text-align: center;
             text-decoration: none;
-            color: #000;
-            margin-top: 20px;
+            color: #8D58BF;
+            margin-top: 25px;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .btn-back:hover {
-            background-color: #ddd;
+            background-color: #8D58BF;
+            color: #fff;
         }
     </style>
 </head>
@@ -108,4 +125,3 @@ $conn->close();
     </div>
 </body>
 </html>
-
