@@ -19,7 +19,7 @@ if ($conn->connect_error) {
 
 $loggedInUsername = $_SESSION['username'];
 
-$sql_user = "SELECT username, email, phone, dob, address, current_thought, thought_timestamp FROM users WHERE username=?";
+$sql_user = "SELECT username, email, phone, dob, address, current_thought, thought_timestamp, profile_pic FROM users WHERE username=?";
 $stmt_user = $conn->prepare($sql_user);
 $stmt_user->bind_param("s", $loggedInUsername);
 $stmt_user->execute();
@@ -52,6 +52,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Fetch a random joke from the Joke API
+$jokeUrl = "https://v2.jokeapi.dev/joke/Programming";
+$jokeResponse = file_get_contents($jokeUrl);
+$jokeData = json_decode($jokeResponse, true);
+
+if ($jokeData) {
+    if ($jokeData['type'] === 'single') {
+        $joke = $jokeData['joke'];
+    } else {
+        $joke = $jokeData['setup'] . " " . $jokeData['delivery'];
+    }
+} else {
+    $joke = "Unable to fetch joke.";
+}
+
 $stmt_user->close();
 $conn->close();
 ?>
@@ -72,7 +87,7 @@ $conn->close();
             background: #8D58BF; 
             color: #333;
         }
-        
+
         header {
             background: #ffffff;
             padding: 15px 10%;
@@ -124,21 +139,40 @@ $conn->close();
         .profile-thought-container {
             display: flex;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
         .profile-card, .thought-card {
             flex: 1;
-        }
-
-        .thought-card {
-            margin-left: 20px;
+            min-width: 300px;
         }
 
         .profile-card, .thought-card {
+            display: flex;
+            flex-direction: column;
             padding: 20px;
             border-radius: 8px;
             background-color: #f9f9f9;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .profile-card:hover, .thought-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: scale(1.02);
+        }
+
+        .profile-card img {
+            width: 150px; /* Adjusted width */
+            height: 150px; /* Adjusted height */
+            border-radius: 50%;
+            border: 2px solid #8D58BF;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .profile-info {
+            text-align: left;
         }
 
         .profile-card h2, .thought-card h2 {
@@ -169,20 +203,21 @@ $conn->close();
             box-shadow: 0 0 10px rgba(141, 88, 191, 0.1);
         }
 
-        button {
-            padding: 8px;
+        button, .update-thought-button {
+            padding: 10px 20px;
             border: none;
             background-color: #8D58BF;
             color: #fff;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
             width: auto;
             display: inline-block;
+            text-align: center;
         }
 
-        button:hover {
+        button:hover, .update-thought-button:hover {
             background-color: #6D5BBA;
         }
 
@@ -205,6 +240,26 @@ $conn->close();
             border-radius: 5px;
             text-align: center;
         }
+
+        .joke-card {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .joke-card h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #8D58BF;
+        }
+
+        .joke-card p {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #555;
+        }
     </style>
 </head>
 <body>
@@ -220,20 +275,21 @@ $conn->close();
     <div class="container">
         <div class="profile-thought-container">
             <div class="profile-card">
-                <h2>Welcome, <?php echo htmlspecialchars($user['username']); ?>!</h2>
-                <p>Email: <?php echo isset($user['email']) ? htmlspecialchars($user['email']) : 'N/A'; ?></p>
-                <p>Phone: <?php echo isset($user['phone']) ? htmlspecialchars($user['phone']) : 'N/A'; ?></p>
-                <p>Date of Birth: <?php echo isset($user['dob']) ? htmlspecialchars($user['dob']) : 'N/A'; ?></p>
-                <p>Address: <?php echo isset($user['address']) ? htmlspecialchars($user['address']) : 'N/A'; ?></p>
-                <p>Current Thought: <?php echo isset($user['current_thought']) ? htmlspecialchars($user['current_thought']) : 'N/A'; ?></p>
-                <p>Posted at: <?php echo isset($user['thought_timestamp']) ? htmlspecialchars($user['thought_timestamp']) : 'N/A'; ?></p>
+                <img src="<?php echo !empty($user['profile_pic']) ? htmlspecialchars($user['profile_pic']) : 'images/default-profile.png'; ?>" alt="Profile Picture">
+                <div class="profile-info">
+                    <h2>Welcome, <?php echo htmlspecialchars($user['username']); ?>!</h2>
+                    <p>Email: <?php echo isset($user['email']) ? htmlspecialchars($user['email']) : 'N/A'; ?></p>
+                    <p>Phone: <?php echo isset($user['phone']) ? htmlspecialchars($user['phone']) : 'N/A'; ?></p>
+                    <p>Date of Birth: <?php echo isset($user['dob']) ? htmlspecialchars($user['dob']) : 'N/A'; ?></p>
+                    <p>Address: <?php echo isset($user['address']) ? htmlspecialchars($user['address']) : 'N/A'; ?></p>
+                </div>
             </div>
 
             <div class="thought-card">
                 <h2>Update Your Thought</h2>
                 <form method="POST" action="dashboard.php">
                     <textarea name="current_thought" placeholder="Share your thoughts..."><?php echo isset($user['current_thought']) ? htmlspecialchars($user['current_thought']) : ''; ?></textarea>
-                    <button type="submit">Update Thought</button>
+                    <button type="submit" class="update-thought-button">Update Thought</button>
                 </form>
                 <?php if (isset($error)): ?>
                     <p class="error"><?php echo htmlspecialchars($error); ?></p>
@@ -241,6 +297,12 @@ $conn->close();
                 <?php if (isset($success)): ?>
                     <p class="success"><?php echo htmlspecialchars($success); ?></p>
                 <?php endif; ?>
+
+                <!-- Joke of the Day within the Thought Card -->
+                <div class="joke-card">
+                    <h2>Joke of the Day</h2>
+                    <p><?php echo htmlspecialchars($joke); ?></p>
+                </div>
             </div>
         </div>
     </div>

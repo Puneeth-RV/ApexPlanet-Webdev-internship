@@ -27,6 +27,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $dob = $_POST['dob'];
     $address = trim($_POST['address']);
 
+    // Handle profile picture upload
+    $profilePic = '';
+    if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
+        $fileTmpPath = $_FILES['profile_pic']['tmp_name'];
+        $fileName = $_FILES['profile_pic']['name'];
+        $fileSize = $_FILES['profile_pic']['size'];
+        $fileType = $_FILES['profile_pic']['type'];
+        $fileNameCmps = explode('.', $fileName);
+        $fileExtension = strtolower(end($fileNameCmps));
+
+        // Validate file type and size
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            $errors[] = "Unsupported file type. Only JPG, JPEG, PNG, and GIF are allowed.";
+        } elseif ($fileSize > 2 * 1024 * 1024) { // 2MB limit
+            $errors[] = "File size exceeds 2MB.";
+        } else {
+            $profilePic = 'uploads' . uniqid() . '.' . $fileExtension;
+            if (!move_uploaded_file($fileTmpPath, $profilePic)) {
+                $errors[] = "Error uploading the file.";
+            }
+        }
+    }
+
     // Server-Side Validation
     if (empty($email) || empty($phone) || empty($dob) || empty($address)) {
         $errors[] = "All fields are required.";
@@ -41,9 +65,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if (count($errors) === 0) {
-        $sql = "UPDATE users SET email=?, phone=?, dob=?, address=? WHERE username=?";
+        $sql = "UPDATE users SET email=?, phone=?, dob=?, address=?, profile_pic=? WHERE username=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssss", $email, $phone, $dob, $address, $username);
+        $stmt->bind_param("ssssss", $email, $phone, $dob, $address, $profilePic, $username);
 
         if ($stmt->execute()) {
             $successMessage = "User updated successfully!";
@@ -140,6 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             width: 100%;
             text-align: left;
             font-size: 12px;
+            color: #333; 
         }
 
         .form-group input, .form-group textarea {
@@ -244,7 +269,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container">
         <h2>Update Profile</h2>
-        <form action="update.php" method="post">
+        <form action="update.php" method="post" enctype="multipart/form-data">
             <input type="hidden" name="username" value="<?php echo htmlspecialchars($user['username'] ?? ''); ?>">
             
             <?php if (count($errors) > 0): ?>
@@ -277,6 +302,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group">
                 <label for="address">Address:</label>
                 <textarea id="address" name="address" placeholder="Enter your address" title="Provide your full address" required><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="profile_pic">Profile Picture:</label>
+                <input type="file" id="profile_pic" name="profile_pic">
             </div>
 
             <input type="submit" value="Update User">

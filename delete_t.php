@@ -7,29 +7,32 @@ if (!isset($_SESSION['username'])) {
 }
 
 $servername = "localhost";
-$username_db = "root";
+$username = "root";
 $password = "";
-$dbname = "user_management"; 
+$dbname = "user_management";
 
-$conn = new mysqli($servername, $username_db, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$id = $_GET['id'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['thought_id'])) {
+    $thought_id = $_POST['thought_id'];
 
-$sql = "DELETE FROM thoughts WHERE id=?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id);
+    // Prepare and execute delete query
+    $sql = "UPDATE users SET current_thought = NULL WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $thought_id);
 
-if ($stmt->execute()) {
-    header("Location: thought.php");
-} else {
-    echo "Error: " . $stmt->error;
+    if ($stmt->execute()) {
+        header("Location: thought.php");
+    } else {
+        echo "Error deleting thought: " . $conn->error;
+    }
+
+    $stmt->close();
 }
 
-$stmt->close();
 $conn->close();
 ?>
-

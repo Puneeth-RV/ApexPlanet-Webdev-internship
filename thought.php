@@ -7,17 +7,30 @@ if (!isset($_SESSION['username'])) {
 }
 
 $servername = "localhost";
-$username = "root";
+$username_db = "root";
 $password = "";
 $dbname = "user_management";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username_db, $password, $dbname);
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql_thoughts = "SELECT username, current_thought, created_at FROM users WHERE current_thought IS NOT NULL";
+// Fetch current user role
+$sql_user_role = "SELECT role FROM users WHERE username=?";
+$stmt_user_role = $conn->prepare($sql_user_role);
+$stmt_user_role->bind_param("s", $_SESSION['username']);
+$stmt_user_role->execute();
+$result_user_role = $stmt_user_role->get_result();
+$user_role = $result_user_role->fetch_assoc()['role'];
+$stmt_user_role->close();
+
+// Fetch all thoughts, with admin thoughts first and newer thoughts higher
+$sql_thoughts = "SELECT id, username, current_thought, thought_timestamp, role, profile_pic 
+                 FROM users 
+                 WHERE current_thought IS NOT NULL 
+                 ORDER BY FIELD(role, 'admin', 'user') DESC, thought_timestamp DESC";
 $result_thoughts = $conn->query($sql_thoughts);
 
 if (!$result_thoughts) {
@@ -33,6 +46,8 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Thoughts</title>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
@@ -64,11 +79,26 @@ $conn->close();
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
         .thought {
+            display: flex;
+            align-items: flex-start;
             padding: 20px;
             border-bottom: 1px solid #ddd;
             margin-bottom: 15px;
             background: #f9f9f9;
             border-radius: 10px;
+            position: relative;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+        .thought:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: scale(1.02);
+        }
+        .thought img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 20px;
+            object-fit: cover;
         }
         .thought p {
             margin: 0;
@@ -82,6 +112,33 @@ $conn->close();
         .thought p small {
             font-size: 14px; 
             color: #777;
+        }
+        .thought .admin-tag {
+            display: inline-block;
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-left: 10px;
+            border-radius: 4px;
+        }
+        .thought form {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .thought button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .thought button i {
+            font-size: 20px;
+            color: #e74c3c;
+            transition: color 0.3s ease;
+        }
+        .thought button:hover i {
+            color: #c0392b;
         }
         .btn-back {
             display: inline-block;
@@ -110,10 +167,31 @@ $conn->close();
         <div class="thoughts-list">
             <?php if ($result_thoughts->num_rows > 0): ?>
                 <?php while ($row = $result_thoughts->fetch_assoc()): ?>
+                    <?php 
+                        // Convert the 'thought_timestamp' to a readable format
+                        $thought_timestamp = new DateTime($row['thought_timestamp']);
+                        $formatted_date = $thought_timestamp->format('F j, Y \a\t g:i A');
+                    ?>
                     <div class="thought">
-                        <p><strong><?php echo htmlspecialchars($row['username']); ?></strong> said:</p>
-                        <p><?php echo htmlspecialchars($row['current_thought']); ?></p>
-                        <p><small>Posted at: <?php echo htmlspecialchars($row['created_at']); ?></small></p>
+                        <img src="<?php echo !empty($row['profile_pic']) ? htmlspecialchars($row['profile_pic']) : 'images/default-profile.png'; ?>" alt="Profile Picture">
+                        <div>
+                            <p>
+                                <strong><?php echo htmlspecialchars($row['username']); ?></strong>
+                                <?php if ($row['role'] === 'admin'): ?>
+                                    <span class="admin-tag">Admin</span>
+                                <?php endif; ?>
+                            </p>
+                            <p><?php echo htmlspecialchars($row['current_thought']); ?></p>
+                            <p><small>Posted on: <?php echo htmlspecialchars($formatted_date); ?></small></p>
+
+                            <!-- Only admins can delete thoughts -->
+                            <?php if ($user_role === 'admin'): ?>
+                                <form action="delete_t.php" method="post">
+                                    <input type="hidden" name="thought_id" value="<?php echo $row['id']; ?>">
+                                    <button type="submit"><i class="fas fa-trash"></i></button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 <?php endwhile; ?>
             <?php else: ?>

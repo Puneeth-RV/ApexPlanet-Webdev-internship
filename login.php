@@ -139,20 +139,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         input[type="submit"] {
+            display: inline-block;
+            padding: 10px 20px;
+            border: 1px solid #8D58BF;
+            background-color: #fff;
+            border-radius: 8px;
+            font-size: 16px; 
+            text-align: center;
+            text-decoration: none;
+            color: #8D58BF;
             cursor: pointer;
-            background-color: #8D58BF;
-            color: white;
-            border: none;
-            font-weight: 600;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
             width: 100%;
-            padding: 12px;
-            border-radius: 30px;
+            box-sizing: border-box;
         }
 
         input[type="submit"]:hover {
-            background-color: #6D5BBA;
+            background-color: #8D58BF;
+            color: #fff;
         }
 
         a {
