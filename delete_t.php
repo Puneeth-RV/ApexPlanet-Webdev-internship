@@ -20,7 +20,6 @@ if ($conn->connect_error) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['thought_id'])) {
     $thought_id = $_POST['thought_id'];
 
-    // Prepare and execute delete query
     $sql = "UPDATE users SET current_thought = NULL WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $thought_id);

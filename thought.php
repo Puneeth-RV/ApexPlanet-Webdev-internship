@@ -17,7 +17,6 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch current user role
 $sql_user_role = "SELECT role FROM users WHERE username=?";
 $stmt_user_role = $conn->prepare($sql_user_role);
 $stmt_user_role->bind_param("s", $_SESSION['username']);
@@ -26,7 +25,6 @@ $result_user_role = $stmt_user_role->get_result();
 $user_role = $result_user_role->fetch_assoc()['role'];
 $stmt_user_role->close();
 
-// Fetch all thoughts, with admin thoughts first and newer thoughts higher
 $sql_thoughts = "SELECT id, username, current_thought, thought_timestamp, role, profile_pic 
                  FROM users 
                  WHERE current_thought IS NOT NULL 
@@ -46,7 +44,6 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Thoughts</title>
-    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
@@ -168,7 +165,6 @@ $conn->close();
             <?php if ($result_thoughts->num_rows > 0): ?>
                 <?php while ($row = $result_thoughts->fetch_assoc()): ?>
                     <?php 
-                        // Convert the 'thought_timestamp' to a readable format
                         $thought_timestamp = new DateTime($row['thought_timestamp']);
                         $formatted_date = $thought_timestamp->format('F j, Y \a\t g:i A');
                     ?>
@@ -184,7 +180,6 @@ $conn->close();
                             <p><?php echo htmlspecialchars($row['current_thought']); ?></p>
                             <p><small>Posted on: <?php echo htmlspecialchars($formatted_date); ?></small></p>
 
-                            <!-- Only admins can delete thoughts -->
                             <?php if ($user_role === 'admin'): ?>
                                 <form action="delete_t.php" method="post">
                                     <input type="hidden" name="thought_id" value="<?php echo $row['id']; ?>">

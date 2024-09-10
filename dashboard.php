@@ -163,8 +163,8 @@ $conn->close();
         }
 
         .profile-card img {
-            width: 150px; /* Adjusted width */
-            height: 150px; /* Adjusted height */
+            width: 150px; 
+            height: 150px;
             border-radius: 50%;
             border: 2px solid #8D58BF;
             object-fit: cover;
@@ -298,7 +298,6 @@ $conn->close();
                     <p class="success"><?php echo htmlspecialchars($success); ?></p>
                 <?php endif; ?>
 
-                <!-- Joke of the Day within the Thought Card -->
                 <div class="joke-card">
                     <h2>Joke of the Day</h2>
                     <p><?php echo htmlspecialchars($joke); ?></p>

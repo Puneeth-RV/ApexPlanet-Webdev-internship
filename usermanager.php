@@ -17,7 +17,6 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch the user's role
 $sql_user_role = "SELECT role FROM users WHERE username=?";
 $stmt_role = $conn->prepare($sql_user_role);
 $stmt_role->bind_param("s", $_SESSION['username']);
@@ -26,7 +25,6 @@ $result_role = $stmt_role->get_result();
 $user_role = $result_role->fetch_assoc()['role'];
 $stmt_role->close();
 
-// Fetch all users, sorting by role
 $sql_all_users = "SELECT username, email, role FROM users ORDER BY role DESC, username ASC";
 $result_all_users = $conn->query($sql_all_users);
 
@@ -106,7 +104,6 @@ $conn->close();
             color: #fff;
         }
 
-        /* Set fixed column widths for consistency */
         table th:nth-child(1), table td:nth-child(1) {
             width: 30%;
         }
@@ -117,7 +114,6 @@ $conn->close();
             width: 20%;
         }
 
-        /* Alternate row color for better readability */
         tr:nth-child(even) td {
             background: #f2f2f2;
         }
@@ -136,8 +132,7 @@ $conn->close();
                 <th>Actions</th>
             </tr>
             <?php
-            // Display admins
-            $result_all_users->data_seek(0); // Reset the result set pointer
+            $result_all_users->data_seek(0); 
             while ($row = $result_all_users->fetch_assoc()) {
                 if ($row['role'] === 'admin') { ?>
                     <tr>
@@ -163,8 +158,7 @@ $conn->close();
                 <th>Actions</th>
             </tr>
             <?php
-            // Display regular users
-            $result_all_users->data_seek(0); // Reset the result set pointer
+            $result_all_users->data_seek(0); 
             while ($row = $result_all_users->fetch_assoc()) {
                 if ($row['role'] !== 'admin') { ?>
                     <tr>
